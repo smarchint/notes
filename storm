@@ -1,0 +1,128 @@
+Storm:
+
+
+1M events /sec /machine
+
+Nimbus - fail fast - stateless = stores state in zookeeper
+Supervisor daemon - manages worker JVM processes
+
+Nimbus and Supervisor communicate through zookeper
+
+Nimbus <-> Zookeeper <-> Supervisor
+
+
+
+
+
+# parallelism execution model - storm
+
+machine 1--* worker process 1--* executor[a thread](belongs to a topology) 1--* task (of same type - spout, bolt)
+
+
+worker process - 
+executor (threads) - belongs to a topology
+task - actual data processor
+
+
+
+
+
+# http://nathanmarz.com/blog/history-of-apache-storm-and-lessons-learned.html
+
+
+understand their impact on social media both historically and in realtime
+queues and workers aproach
+idea of a "stream" as a distributed abstraction
+Streams would be produced and processed in parallel, but they could be represented in a single program as a single abstraction
+a spout produces brand new streams, and a bolt takes in streams as input and produces streams as output.
+spouts and bolts were inherently parallel
+ similar to how mappers and reducers are inherently parallel in Hadoop
+Bolts would simply subscribe to whatever streams they need to process and indicate how the incoming stream should be partitioned to the bolt. Finally, the top-level abstraction I came up with was the "topology", a network of spouts and bolts.
+
+
+how to pass messages between spouts and bolts - 
+-queues ?? :
+	additional infra/maintainance/overhead
+	redeploy topology & intremittent messages (cleaned)
+
+-message processing guarantee without using intermediate message brokers
+The tricky thing was that the failure of processing could happen anywhere downstream from the spout, on a completely different server, and this would have to be detected with perfect accuracy
+
+an algorithm based on random numbers and xors that would only require about 20 bytes to track each spout tuple, regardless of how much processing was triggered downstream
+
+Storm's APIs in Java, but implemented Storm in Clojure
+
+Desgin:
+I also planned from the beginning to make Storm usable from non-JVM languages. Topologies are defined as Thrift data structures, and topologies are submitted using a Thrift API
+I designed a protocol so that spouts and bolts could be implemented in any language
+Storm's multi-language API.
+
+Desgin from Hadoop
+Hadoop: burden of worker shutdown on the worker itself. a variety of reasons workers would sometimes fail to shut themselves down
+I put the burden of worker shutdown on the same Storm daemon
+I designed Storm to be "process fault-tolerant": if a Storm daemon is killed and restarted it has absolutely no effect on running topologies
+
+the Hadoop of realtime
+
+"isolation scheduler". It was an incredibly simple solution that provided for multi-tenancy
+
+metrics API
+
+Trident, a micro-batching API on top of Storm that provides exactly-once processing semantics
+
+
+"visionary-driven development" is necessary when the solution space still has a lot of uncertainty in it.
+When the solution space is relatively well understood, the value of "visionary-driven development" diminishes dramatically
+
+
+
+
+# Transactional Bolt:
+
+process in batches and commit them while preserving the order of commit for batches
+but batches can be processed in prarallel
+commits are serialized
+retry batch on failure...
+
+
+# Cluster sizing:
+
+1 worker/machine/topology - in a machine, #workers = # topologies
+1 acker/worker
+CPU bound top -> 1 executor per core
+
+[MORE]https://gist.github.com/mrflip/5958028
+
+
+
+# https://www.youtube.com/watch?v=QsPzAtZXIk4
+
+Throughput
+Latency
+Resource Utilization : CPU/MEM/NET/DISK
+
+streaming systems - threads passing messages
+https://issues.apache.org/jira/browse/STORM-2306
+http://jctools.github.io/JCTools/
+https://arxiv.org/pdf/2010.14189.pdf
+http://tutorials.jenkov.com/jctools/index.html
+
+[MORE]https://www.youtube.com/watch?v=6bWBEJBMNG0
+
+
+
+
+Resouces:
+http://nathanmarz.com/blog/history-of-apache-storm-and-lessons-learned.html
+https://www.slideshare.net/KrishnaGade2/storm-at-twitter
+https://www.michael-noll.com/blog/2014/09/15/apache-storm-training-deck-and-tutorial/
+https://www.michael-noll.com/blog/2012/10/16/understanding-the-parallelism-of-a-storm-topology/
+https://www.michael-noll.com/blog/archives/
+https://www.michael-noll.com/blog/2013/06/21/understanding-storm-internal-message-buffers/
+http://roboconf.net/en/user-guide/tutorial-apache-storm-with-docker-3.html
+https://www.youtube.com/watch?v=bdps8tE0gYo
+https://www.youtube.com/watch?v=cH8hKyf4Y40
+https://core.ac.uk/download/pdf/211519174.pdf
+https://storm.apache.org/talksAndVideos.html
+https://www.youtube.com/watch?v=QsPzAtZXIk4 [gg]
+

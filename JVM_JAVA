@@ -1,0 +1,103 @@
+JVM, JAVA:
+
+
+
+# https://www.youtube.com/watch?v=8wHx31mvSLY
+
+Tuning:
+Mem
+Lock contention
+IO 
+CPU
+
+
+Less Mem -> Less GC Pressure
+
+
+
+Tuning vs Optimization:
+
+C . T . R = a (constant)
+
+C = compactness (how low is mem)
+T = Throughput
+R = Responsivness (Latency)
+
+
+Tuning: 		vary C,T,R but fixed "a"
+Optimization :  increse "a"
+
+
+
+JVM: Young gen
+
+eden -> survivor -> old
+
+# [Jack Shirazi]
+## https://www.youtube.com/watch?v=JoQN4xoXY5Y
+## https://www.youtube.com/watch?v=OYpTn0nWKR4 [gg]
+
+- trurn on GC LOGGER
+
+- cache line contention b/w two threads- from app POV, no contention. but from CPU POV there is
+- NUMA node RAM
+Total RAM
+- circulate nodes for GC pauses - move out a node, do GC and add it back to serve traffic
+
+#https://www.youtube.com/watch?v=Vs8LOtmtbrg
+
+
+NO GC, Serial, Parallel, Throughput
+Targeted at Pause Time : CMS, G1, ZGC, Shenandoah, Balanced, Generational, Metronome, Pause Optimized
+
+
+## [The JVM and Docker. A good idea] https://www.youtube.com/watch?v=6ePUiQuaUos [GG]
+
+
+
+
+
+
+
+Memory:
+[Troubleshooting Memory Problems in Java Applications] https://www.youtube.com/watch?v=iixQAYnBnJw
+
+JAVA Resources:
+https://www.youtube.com/channel/UCVPASNJQ98XbpQM8Oy3qZJg/videos
+https://www.youtube.com/c/DefogTech/videos
+
+
+
+Containers and JVM:
+
+
+
+
+
+#JAVA MOre:
+https://www.youtube.com/watch?v=-6nrhSdu--s
+
+DEBUG/PRFILE/perftuning:
+https://www.youtube.com/watch?v=JoQN4xoXY5Y
+https://www.youtube.com/watch?v=bjp7bhzyhQo
+https://www.youtube.com/watch?v=wgQBz2Ldhvk
+
+
+MEM mODEl:
+https://www.youtube.com/watch?v=cczmBfVQuJo
+https://www.youtube.com/watch?v=f2aNWtt0QRo
+https://www.youtube.com/watch?v=c755fFv1Rnk
+
+JVM:
+https://www.youtube.com/watch?v=4joWshvFJnw
+https://www.youtube.com/watch?v=hjpzLXoUu1Y
+https://www.youtube.com/watch?v=a-U0so9FfqQ
+https://www.youtube.com/watch?v=UwB0OSmkOtQ
+https://www.youtube.com/watch?v=-vizTDSz8NU
+https://www.youtube.com/watch?v=UwB0OSmkOtQ
+https://www.youtube.com/watch?v=JLFjY6Ixct8
+
+GC:
+https://www.youtube.com/watch?v=9FiNsALl64k
+https://www.youtube.com/watch?v=WEzqfzoVaAQ
+

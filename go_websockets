@@ -1,0 +1,20 @@
+go / websockets:
+
+https://stackoverflow.com/questions/41258268/scaling-webscocket-connections-using-golang
+https://www.freecodecamp.org/news/million-websockets-and-go-cc58418460bb/
+https://centrifugal.github.io/centrifugo/blog/scaling_websocket/
+[Going Infinite, handling 1 millions websockets connections in Go / Eran Yanay]https://www.youtube.com/watch?v=LI1YTFMi8W4
+https://www.youtube.com/watch?v=YiCCD5DPry8
+
+https://levelup.gitconnected.com/building-chat-service-in-golang-and-websockets-backed-by-redis-b42a8784636c
+https://hackernoon.com/scaling-websockets-9a31497af051
+
+https://medium.com/smsjunk/handling-1-million-requests-per-minute-with-golang-f70ac505fcaa
+
+
+
+
+
+
+
+https://medium.com/happytech/limiting-goroutines-with-semaphore-b8ccc248e5f0

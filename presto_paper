@@ -1,0 +1,139 @@
+presto 2: paper;
+
+
+Metadata SPI
+DataStatistics SPI
+DataLocation SPI
+DataStream SPI
+
+
+‘stages’
+ identifying parts of the plan that can be executed in
+parallel across workers. 
+every stage is distributed to one or more tasks, each of
+which execute the same computation on different sets of input
+data
+
+The engine inserts buffered in-memory data transfers
+(shuffles) between stages to enable data exchange. Shuffles add
+latency, use up buffer memory, and have high CPU overhead
+
+
+To execute a query, the engine makes two sets of scheduling
+decisions. The first determines the order in which stages are
+scheduled, and the second determines how many tasks should
+be scheduled, and which nodes they should be placed on
+
+
+# Scheduling:
+Stage
+Task
+Split
+
+
+# Stage Scheduling : all-at-once and phased.
+
+
+# Task Scheduling:
+ 	leaf stage:  read data from connectors
+ 	intermediate stages : y process intermediate results from other stage
+
+
+majority of CPU time across our
+production clusters is spent decompressing, decoding, filtering
+and applying transformations to data read from connectors.
+
+leaf:
+the data can be
+divided up into enough splits, a leaf stage task is scheduled
+on every worker node in the cluster
+
+intermediate:
+the engine can
+dynamically change the number of tasks during execution
+
+
+# Split Scheduling:
+Every task in a leaf stage must be assigned one or more
+splits to become eligible to run.
+
+Lazy Split Assignment: As tasks are set up on worker nodes, the
+coordinator starts to assign splits to these tasks
+Presto asks
+connectors to enumerate small batches of splits, and assigns
+them to tasks lazily.
+
+Workers maintain a queue of splits they are assigned to
+process
+
+
+
+
+logical plan -> DAG Stages -> Tasks to worker assignment (how many tasks per stage)
+-> Split assignment to Tasks
+
+
+Stage -> * Tasks
+
+Tasks -> *pipelines -> *operators
+
+pipeline - runnable driver ???
+
+
+
+
+ Query Execution: (. Query Execution.Local Data Flow)
+
+
+Once a split is assigned to a thread, it
+is executed by the driver loop.
+
+The unit of data that the driver loop operates on is called
+a page, which is a columnar encoding of a sequence of
+rows.
+
+Split is reference to multiple pages
+Page is actual quanta of data
+
+f(split)         -> input pages. -- > Operator ----> output pages
+Connector 
+Data Source API
+
+Full output buffers cause
+split execution to stall and use up valuable memory, 
+while underutilized input buffers add unnecessary processing overhead
+
+
+
+Shuffles : Producer - Consumer Problem : 
+  :  Input Buffer  ---------------- Output Buffer : 
+        |                                   Producer Cncurrency 
+        |                                  controlled by #splits to  
+        |                                   maintain constant buffer utilization rate
+
+moving average of data transferred per request to compute a target HTTP
+request concurrency that keeps the input buffers populated
+while not exceeding their capacity
+
+
+# Resource Management
+
+## CPU Scheduling:
+
+Presto schedules many concurrent tasks on every worker
+node to achieve multi-tenancy and uses a cooperative multitasking model.
+
+
+SO:
+
+The task.max-worker-threads property is the number of threads that Presto will use to execute tasks for queries. This is a cooperative multi-tasking design where each task is expected to only use the thread for about a second before, returning to the scheduler. As you might expect, this property is typically set relative to the number of CPU cores (current default is 2x the core count).
+
+The task.concurrency property is the number of tasks that are generated for worker parallel tasks. There are some worker tasks that are required to be single threaded. For example, a final LIMIT requires a single counter to restrict the number of rows to an exact count. After a step like that, the planner can insert an worker-local exchange to allow for parallel execution of the next steps. For these parallel steps, the system must choose a number to run in parallel, and this option controls that decision. For this property, the number isn't directly related to the number of cores, because the task scheduler mentioned above can handle many more tasks than cores, but in general you don't need have more than the core count. A high value for task.concurrency can lead to inefficiency due to splitting the data in to very small chunks. On the other hand, if the number is too low, you can increase query latency as everything waits for a few threads to process a lot of data. Typically a value of 8 or 16 is good enough for more installations.
+
+
+
+
+
+
+
+

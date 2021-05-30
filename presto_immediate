@@ -1,0 +1,48 @@
+presto immediate:
+
+
+Regexp:
+https://docs.treasuredata.com/display/public/PD/Aggregating+a+Series+of+LIKE+Clauses+in+One+Single+regexp_like+Clause
+
+
+
+Task concurrency, initial splits per node
+ if their CPUs are not fully saturated, it might indicate the number of Presto worker threads can be made higher, or the number of splits in a batch is not high enough.
+
+ HPA on CPU ?
+
+
+ node-scheduler.max-splits-per-node  
+ node-scheduler.max-pending-splits-per-task --- too high, splits may be assigned to only a small subset of workers, causing imbalanced load across all workers.
+
+
+
+https://www.lewuathe.com/presto-driver,split-and-pipeline.html
+ If the pipeline starts with tablescan operator, driver is created per split. If the pipeline is an intermediate data processing, it depends on task.concurrency.
+
+
+
+
+
+
+ query.max-memory-per-node : JVM max memory * 0.1
+ query.max-total-memory-per-node : JVM max memory * 0.3
+ memory.heap-headroom-per-node : JVM max memory * 0.3
+ query.max-memory : 20GB
+ query.max-total-memory : query.max-memory * 2
+
+
+ exchange.client-threads : 25
+ exchange.max-buffer-size: 32MB
+ exchange.max-response-size : 16 MB
+ sink.max-buffer-size : 32 MB
+ sink.max-broadcast-buffer-size: 200 MB.  - broadcast buffer is used to store and transfer build side data for replicated joins
+
+ task.concurrency : 16.  lower -> high query concurrency, higher -> low # of intensive queries
+ task.max-partial-aggregation-memory : 16MB
+ task.max-worker-threads : cores * 2
+ task.min-drivers: task.max-worker-threads * 2. ~ cores * 4
+
+node-scheduler.max-splits-per-node: 100
+node-scheduler.max-pending-splits-per-task : 10
+node-scheduler.min-candidates: 10

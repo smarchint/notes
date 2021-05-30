@@ -1,0 +1,178 @@
+presto:
+------
+
+presto-on-spark ?
+
+	presto-on-spark vs presto-on-s3
+	split elvel retry 
+	raptorX : caching ??
+	coordiantor HA ?? : prtition load -> Larger cluster (1000s of nodes)
+
+
+
+Presto Training Series, Session 4: Tuning Presto Performance:
+------------------------------------------------------------
+
+strategy : over allocate cluster, then start tune...
+
+monitor queries and attach SLA's
+- disable OS splill
+- disable runaway process detector (k8s)
+
+
+more CPU - shorter query
+
+CPU: 
++ decompress, join, aggregate
+
+Mem: (doesn't fit -> disk spill)
++ datastructure
++ it controls how many queries can run at the same time... ??
+
+
++ inc CPU -> faster query
++ mem is bottleneck for concurrent queries
+
+
++ cpu usage is deterministic for query. can run a query and note the cpu usage
++ total queey time = #vpcus consumed / #pods
+
+MEM: 
+	join -hashtable of table in mem, 
+	groupby - hash_table[groupby keys -> agg_values]
+	orderby - sort
+	windowing. - partition (group) and sorting (order ) window
+	multiple joins - multple hash+tables in mem (concurrently - determined by planner)
+
+
+	count(*) is just streamign - low mem usage
+	joininig two large tables - ? impact on mem ? how much in total is needed ?
+
+
+Dynamic cluster scaling :
++ VM boot time : 5 min
++ prodeict quries 5 min into the future for dynamic scaling .... [historic patterns ...]
+
+
+iterative process of tunning query limits :
++ limit query resources...timelimit + mem limit
++ analyse queries and tune the limits
+
+
+
+Total Mem:
++ OS  : buffers, processes, kernel
++ JVM : buffers, threads, GC, cache
++ JVM HEAP : shared buffers, query buffers
++ how to configure JVM tuning - see the documentation
++
+
+Mem allocation: [VM]
++ 20% OS + 80%  JVM heap 
++ 30% JVM shared buffer + 70% JVM query buffers
++ 128GB machine -> 100GB JVM heap-> 70GB Query 
+
+	128 * 0.8 ~ 100
+	128 * 0.8 * 0.7 ~ 70
+
+Mem allocations: [YARN]
++ 100% -> 80% of 80% -> 70%
++ 128 -> 128 * 0.8 * 0.8 -> 128 * 0.8 * 0.8 * 0.7 
++ 128 GB machine -> 80 GB JVM HEAP -> 57 GB query
++ YARN deplyment -> YARN itself if a JVM... SO Presto is linke JVMs within JVM.
+
++ SKEW data
+
+Few Big Machines better than Many small ones:
++ less JVM overhead across cluster
++ can relatively handle skeness
++ scheduler is happy
+
++ java -XX:+PrintFlagsFinal -version | grep -iE 'HeapSize|PermSize|ThreadStackSize'
+
+
+
+
+
+disk splill
+network strain
+bigger pods
+connector latency ?
+
+
+
+
+
+
+LEARN:
+https://prestodb.io/blog/2019/08/19/memory-tracking#memory-limits
+https://github.com/prestodb/presto/issues/10512#ref-issue-328435594
+
+
+
+
+
+JVM:
+https://blog.softwaremill.com/docker-support-in-new-java-8-finally-fd595df0ca54
+https://oracle.github.io/weblogic-kubernetes-operator/faq/resource-settings/
+https://stackoverflow.com/questions/54292282/clarification-of-meaning-new-jvm-memory-parameters-initialrampercentage-and-minr/54297753#54297753
+https://unix.stackexchange.com/questions/892/is-there-a-way-to-see-details-of-all-the-threads-that-a-process-has-in-linux
+https://prestodb.io/presto-admin/docs/current/installation/presto-configuration.html
+
+
+CPU:
+https://www.youtube.com/watch?v=QkcBASKLyeU
+https://ops.tips/blog/why-top-inside-container-wrong-memory/
+https://www.youtube.com/watch?v=beWXWEimTxs
+
+
+CLUSTER SIZING:
+https://stackoverflow.com/questions/19863857/hardware-requirements-for-presto
+https://medium.com/pinterest-engineering/presto-at-pinterest-a8bda7515e52
+https://eng.lyft.com/presto-infrastructure-at-lyft-b10adb9db01
+
+
+PRESTO_OPS:
+https://dharmeshkakadia.github.io/presto-event-listener/
+https://github.com/pinterest/singer
+
+
+
+INTERESTING:
+https://www.concurrencylabs.com/blog/starburst-presto-vs-aws-redshift/
+https://www.youtube.com/watch?v=9jz4HrVzlOM
+https://keen.io/blog/architecture-of-giants-data-stacks-at-facebook-netflix-airbnb-and-pinterest/
+
+
+
+Which tables are slow while reading?
+Which queries when run together can crash or stall the cluster?
+Which users/ teams are running long queries?
+What is a good threshold for a config?
+P90 and P99 query runtimes?
+Query success rates?
+
+
+
+Check if a worker’s CPU utilization is lower than cluster’s average CPU utilization over a threshold and this difference is sustained over some time.
+Check if a number of queries are failing with internal errors, indicating failure while talking to a worker over a threshold over some time.
+Check if a worker has open file descriptors higher than a threshold for more than some time.
+
+
+
+
+
+5 Billion events per day - events_filtered_json_partition_dt_platform
+1 						 - events_subset_orc_partition_dt
+
+
+
+
+node-scheduler.max-splits-per-node=150
+1.82m
+
+
+node-scheduler.min-candidates=20
+
+
+

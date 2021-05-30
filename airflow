@@ -1,0 +1,40 @@
+Airflow:
+
+WebServer
+Scheduler
+Metadata 
+Executor
+
+
+
+[Airflow on k8s]https://www.youtube.com/watch?v=rSkIa0lREUc
+
+
+
+
+airflow run {dag_id} {task_id} {execution_date}
+
+
+
+
+
+API -> store -> [New Dag File] -> restart airflow scheduler
+
+
+VolumeMount
+
+
+DagGenerator()
+
+
+AdxOperator(job_id)
+
+
+
+
+EFK:
+- fluentd doen't recognises Timestamp ...... [SAURABH@microsoft]
+- https://github.com/weaveworks/kured ......  Security Update 
+- access control.... network polocies... 
+- centralized grafana....
+- 

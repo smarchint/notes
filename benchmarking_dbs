@@ -1,0 +1,31 @@
+benchmarking dbs:
+
+- bech:
+TPC-C - Order Entity
+TPC-A - credit/debit
+DBT2 - mysql
+OLTPbench
+YCSB - workload - a,b,c, ...
+sysbench
+cassandra-stress
+ndbench - netflix
+
+
+- latency x throughput = constant
+
+- compare different systems:
+throughput bench - 100% utilization
+latency bench - constant throughput, how latency grows with throughput...
+
+- throughput vs latency graphs for single system
+
+
+
+
+# resources:
+https://www.youtube.com/watch?v=HS97mZDOdsM
+https://www.youtube.com/watch?v=RFKNDQa29qA
+
+
+
+

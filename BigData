@@ -1,0 +1,42 @@
+BigData:
+
+
+A pipeline to store event data in Parquet
+Data was being accessed via Hive
+
+
+MYNOTE. :CAP, LeaderELection .. - complete cassandra
+
+
+
+CAP:
+
+database cannot guarantee consistency, availability, and partition-tolerance at the same time
+
+make a tradeoff between availability and consistency (as P is important in most cases)
+Managing this tradeoff is a central focus of the NoSQL movement
+
+
+Consistency: writes and future reads are conistent
+
+maintaining eventual consistency in the application layer is too heavy of a burden for developers.
+
+
+The complexity caused by the CAP theorem is a symptom of fundamental problems in how we approach building data systems
+- isolate its complexity
+- mutable state in databases
+  use of incremental algorithms to update that state
+- 
+
+Concepts : Data applications range from storing and retrieving objects, joins, aggregations, stream processing, continuous computation, machine learning, ....
+Solutions: RDBMS's, indexing, OLAP, OLTP, MapReduce, ETL, distributed filesystems, stream processors, NoSQL.......
+
+
+immutable data -> easy replication impl.
+
+
+
+
+
+
+
